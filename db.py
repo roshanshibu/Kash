@@ -81,6 +81,7 @@ def get_account_types():
 							"""
 	if (not execute(conn, sql_get_account_types)):
 		logging.error ("Failed to get data from account_type table")
+		return None
 	
 	rows = cur.fetchall()
 	return(rows)
@@ -121,3 +122,13 @@ def create_new_account(name, type_id, balance, created = None):
 	
 	return True
 
+def get_all_accounts():
+	sql_get_all_account_types = """
+								SELECT * FROM account
+								"""
+	if (not execute(conn, sql_get_all_account_types)):
+		logging.error ("Failed to get data from account_type table")
+		return None
+	
+	rows = cur.fetchall()
+	return(rows)

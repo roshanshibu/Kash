@@ -57,3 +57,12 @@ while True:
 		
 		print ("\nCreated new account " + account_name + "!\n\n")
 
+	if (option == "2"):
+		print ("\n")
+		print (feature_list[1])
+		#print all account details
+		all_accounts = db.get_all_accounts()
+		for account in all_accounts:
+			print (account)
+		
+		print ("\n\n")
