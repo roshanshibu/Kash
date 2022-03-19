@@ -1,38 +1,21 @@
 import sqlite3 as sql
 import logging
 
+database = "kash.db"
+
 #logging options
 log_to_file = 0
+min_log = logging.DEBUG
+
 log_format = '%(asctime)s | %(levelname)s | %(funcName)s() :: %(message)s'
+
 if (log_to_file != 0):
-	logging.basicConfig(filename='kash.log', encoding='utf-8', level=logging.DEBUG, format=log_format, datefmt='%m/%d/%Y %I:%M:%S %p')
+	logging.basicConfig(filename='kash.log', encoding='utf-8', level=min_log, format=log_format, datefmt='%m/%d/%Y %I:%M:%S %p')
 else:
-	logging.basicConfig(format=log_format, level=logging.DEBUG, datefmt='%m/%d/%Y %I:%M:%S %p')
-
-
-def execute(conn, sql_command, params = None):
-	""" execute a given sql statement
-	conn -> Connection object
-	sql_command -> any sql statement
-	params -> a tuple containg variables that can be plugged into the sql_command
-	"""
-	logging.debug("sql_command = ["+sql_command+"]")
-	try:
-		c = conn.cursor()
-		if params is None:
-			c.execute(sql_command)
-		else:
-			c.execute(sql_command, params)
-		return (True)
-	except sql.Error as e:
-		logging.error(e)
-		return (False)
-	except:
-		logging.error("Unexpected Error!")
-		return (False)
+	logging.basicConfig(format=log_format, level=min_log, datefmt='%m/%d/%Y %I:%M:%S %p')
+#----------------
 
 #create and connect to the db "kash" if not already present
-database = "kash.db"
 try:
 	conn = sql.connect(database)
 	print ("Succesfully connected to database [",database,"]")
@@ -66,4 +49,27 @@ if (not execute(conn, sql_create_account_type_table)):
 if (not execute(conn, sql_create_account_table)):
 	logging.error ("Failed to create table account. Exiting...")
 	exit(0)
-	
+
+
+
+def execute(conn, sql_command, params = None):
+	""" execute a given sql statement
+	conn -> Connection object
+	sql_command -> any sql statement
+	params -> a tuple containg variables that can be plugged into the sql_command
+	"""
+	logging.debug("sql_command = ["+sql_command+"]")
+	try:
+		c = conn.cursor()
+		if params is None:
+			c.execute(sql_command)
+		else:
+			c.execute(sql_command, params)
+		return (True)
+	except sql.Error as e:
+		logging.error(e)
+		return (False)
+	except:
+		logging.error("Unexpected Error!")
+		return (False)
+
