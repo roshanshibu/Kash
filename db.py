@@ -232,7 +232,8 @@ def init():
 			logging.error ("Failed to create table transactions. Exiting...")
 			exit(0)
 
-		create_new_category("Transfer", "c_food", "#000000")
-
+		create_new_category("Transfer", "c_transfer", "#000000")
+	
+	return should_init
 
 

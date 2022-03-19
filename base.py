@@ -16,15 +16,14 @@ logging.info ("!!!!----------Session Start----------!!!!")
 #----------------
 
 #initialize db connection
-db.init()
+should_init = db.init()
 
 #prepare cli menu
 #keep this basic, the intent of this program is to develop and test individual apis to interact with the database
 
 
-#auto-populate some values for testing
-autopopulate = 1
-if autopopulate != 0:
+#auto-populate some values for testing, if init was done
+if should_init:
 	db.create_new_account_type("Savings", "---")
 	db.create_new_account_type("Checking", "---")
 	db.create_new_account("federal", 1, 100000)
@@ -32,6 +31,17 @@ if autopopulate != 0:
 	
 
 feature_list = ["create an account", "view accounts", "register transcation"]
+'''
+to-do features:
+- view all transcations
+- delete a transcation
+- view transcations in this month (with sorting options: by latest and by amount value)
+- view transcations in this month for a specific category (with same sorting)
+- view transcations in this month for all categories (give percentage of spending in each category)
+- get account balances (individual and total)
+- delete an account
+'''
+
 while True:
 	i=0
 	print ("Kash - Choose an option")
