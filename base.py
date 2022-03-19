@@ -81,6 +81,33 @@ while True:
 	if (option == "3"):
 		print ("\n")
 		print (feature_list[2])
-		db.create_new_category("Food & Drink", "c_food", "#000000")
-		db.create_transcation("Groceries - quality", db.transcation_type['DEBIT'], 1, 1, 100, "")
-		db.create_transcation("Monthly saving", db.transcation_type['TRANSFER'], 1, 1, 900, "2")
+		print ("--------------Enter transcation details--------------")
+		t_name =  input("Transcation name: ")
+		print ("-------Select transcation Type-------")
+		x = 0
+		for key in db.transcation_type:
+			x += 1
+			print ("(",x,")", key)
+		t_type = input("Transcation type: ")
+		category_types = db.get_all_category()
+		for category in category_types:
+			print (category)
+		category_id = input("Select category type. Press x to create a new category: ")
+		if (category_id == "x"):
+			print ("-------Create new account Typecategory-------")
+			category_name = input("Enter new category name: ")
+			ret = db.create_new_category(category_name, "---", "#000000")
+			if (not ret[0]):
+				print ("Failed to create category")
+			else:
+				category_id = ret[1][0][0]
+				print ("Category id is :",category_id)
+		
+		all_accounts = db.get_all_accounts()
+		for account in all_accounts:
+			print (account)
+		account_id = input("Select account id: ")
+		amount = input ("enter amount: ")
+		sys_note = input("if this is a transfer op, enter the recipient account id: ")
+		db.create_transcation(t_name, t_type, category_id, account_id, amount, sys_note)
+

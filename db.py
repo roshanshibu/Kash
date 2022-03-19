@@ -147,6 +147,16 @@ def create_new_category(c_name, c_logo_id, c_color_hex):
 
 	return (True, cur.fetchall())
 
+def get_all_category():
+	sql_get_all_category = """
+							SELECT * FROM category 
+							"""
+	if (not execute(conn, sql_get_all_category)):
+		logging.error ("Failed to get data from category table")
+		return None
+	
+	rows = cur.fetchall()
+	return(rows)
 
 def init():
 	should_init = False
