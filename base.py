@@ -20,7 +20,18 @@ db.init()
 
 #prepare cli menu
 #keep this basic, the intent of this program is to develop and test individual apis to interact with the database
-feature_list = ["create an account", "view accounts"]
+
+
+#auto-populate some values for testing
+autopopulate = 1
+if autopopulate != 0:
+	db.create_new_account_type("Savings", "---")
+	db.create_new_account_type("Checking", "---")
+	db.create_new_account("federal", 1, 100000)
+	db.create_new_account("south indian", 2, 1000)
+	
+
+feature_list = ["create an account", "view accounts", "register transcation"]
 while True:
 	i=0
 	print ("Kash - Choose an option")
@@ -66,3 +77,10 @@ while True:
 			print (account)
 		
 		print ("\n\n")
+	
+	if (option == "3"):
+		print ("\n")
+		print (feature_list[2])
+		db.create_new_category("Food & Drink", "c_food", "#000000")
+		db.create_transcation("Groceries - quality", db.transcation_type['DEBIT'], 1, 1, 100, "")
+		db.create_transcation("Monthly saving", db.transcation_type['TRANSFER'], 1, 1, 900, "2")
