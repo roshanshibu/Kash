@@ -89,19 +89,22 @@ while True:
 			x += 1
 			print ("(",x,")", key)
 		t_type = input("Transcation type: ")
-		category_types = db.get_all_category()
-		for category in category_types:
-			print (category)
-		category_id = input("Select category type. Press x to create a new category: ")
-		if (category_id == "x"):
-			print ("-------Create new account Typecategory-------")
-			category_name = input("Enter new category name: ")
-			ret = db.create_new_category(category_name, "---", "#000000")
-			if (not ret[0]):
-				print ("Failed to create category")
-			else:
-				category_id = ret[1][0][0]
-				print ("Category id is :",category_id)
+		if(int(t_type) != db.transcation_type['TRANSFER']):
+			category_types = db.get_all_category()
+			for category in category_types:
+				print (category)
+			category_id = input("Select category type. Press x to create a new category: ")
+			if (category_id == "x"):
+				print ("-------Create new account Typecategory-------")
+				category_name = input("Enter new category name: ")
+				ret = db.create_new_category(category_name, "---", "#000000")
+				if (not ret[0]):
+					print ("Failed to create category")
+				else:
+					category_id = ret[1][0][0]
+					print ("Category id is :",category_id)
+		else:
+			category_id = 1 #a category called 'Transfer' is created in init for this 
 		
 		all_accounts = db.get_all_accounts()
 		for account in all_accounts:
@@ -109,5 +112,6 @@ while True:
 		account_id = input("Select account id: ")
 		amount = input ("enter amount: ")
 		sys_note = input("if this is a transfer op, enter the recipient account id: ")
+		print (t_name, t_type, category_id, account_id, amount, sys_note)
 		db.create_transcation(t_name, t_type, category_id, account_id, amount, sys_note)
 

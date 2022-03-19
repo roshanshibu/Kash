@@ -110,17 +110,18 @@ def create_transcation(t_name, t_type, category_id, account_id, amount, sys_note
 		logging.error("Failed to insert transcation")
 		return False
 	
-	if (t_type != transcation_type['TRANSFER']):
+	i_amount = int(amount)
+	if (int(t_type) != transcation_type['TRANSFER']):
 		#increase or decrease balance amount depening on type
-		if t_type == transcation_type['DEBIT']:
-			amount *= -1
-		sql_update_account_balance = "UPDATE account SET balance = balance + " + str(amount) + " WHERE id = " + str(account_id)
+		if int(t_type) == transcation_type['DEBIT']:
+			i_amount *= -1
+		sql_update_account_balance = "UPDATE account SET balance = balance + " + str(i_amount) + " WHERE id = " + str(account_id)
 		if (not execute (conn, sql_update_account_balance)):
 			logging.error("Failed to update account")
 			return False
 	else:
 		#transfer amount from account_id to sys_note vaue id account
-		sql_update_account_balance = "UPDATE account SET balance = balance + " + str(amount) + " WHERE id = " + str(sys_note) + ";" + "UPDATE account SET balance = balance + " + str(amount * -1) + " WHERE id = " + str(account_id) + ";"
+		sql_update_account_balance = "UPDATE account SET balance = balance + " + str(i_amount) + " WHERE id = " + str(sys_note) + ";" + "UPDATE account SET balance = balance + " + str(i_amount * -1) + " WHERE id = " + str(account_id) + ";"
 		if (not execute (conn, sql_update_account_balance, None, True)):
 			logging.error("Failed to update with transfer of amount")
 			return False
@@ -231,6 +232,7 @@ def init():
 			logging.error ("Failed to create table transactions. Exiting...")
 			exit(0)
 
+		create_new_category("Transfer", "c_food", "#000000")
 
 
 
