@@ -57,6 +57,3 @@ while True:
 		
 		print ("\nCreated new account " + account_name + "!\n\n")
 
-			
-
-logging.info ("!!!!----------Session End----------!!!!")

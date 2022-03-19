@@ -120,4 +120,4 @@ def create_new_account(name, type_id, balance, created = None):
 		return False
 	
 	return True
-	
+
