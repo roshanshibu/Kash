@@ -10,7 +10,7 @@
                 <mxCell id="_dHpeF81XEZjoDz7rJlP-2" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;bottom=0;right=0;collapsible=0;dropTarget=0;fillColor=none;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="_dHpeF81XEZjoDz7rJlP-1" vertex="1">
                     <mxGeometry width="450" height="40" as="geometry"/>
                 </mxCell>
-                <mxCell id="_dHpeF81XEZjoDz7rJlP-3" value="Accounts" style="shape=partialRectangle;html=1;whiteSpace=wrap;connectable=0;overflow=hidden;fillColor=none;top=0;left=0;bottom=0;right=0;pointerEvents=1;rowspan=1;colspan=5;" parent="_dHpeF81XEZjoDz7rJlP-2" vertex="1">
+                <mxCell id="_dHpeF81XEZjoDz7rJlP-3" value="account" style="shape=partialRectangle;html=1;whiteSpace=wrap;connectable=0;overflow=hidden;fillColor=none;top=0;left=0;bottom=0;right=0;pointerEvents=1;rowspan=1;colspan=5;" parent="_dHpeF81XEZjoDz7rJlP-2" vertex="1">
                     <mxGeometry width="450" height="40" as="geometry">
                         <mxRectangle width="90" height="40" as="alternateBounds"/>
                     </mxGeometry>
@@ -119,8 +119,8 @@
                         <mxRectangle width="90" height="40" as="alternateBounds"/>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="_dHpeF81XEZjoDz7rJlP-26" value="Type" style="shape=table;startSize=30;container=1;collapsible=0;childLayout=tableLayout;" parent="1" vertex="1">
-                    <mxGeometry x="160" y="330" width="200" height="160" as="geometry"/>
+                <mxCell id="_dHpeF81XEZjoDz7rJlP-26" value="type" style="shape=table;startSize=30;container=1;collapsible=0;childLayout=tableLayout;" parent="1" vertex="1">
+                    <mxGeometry x="40" y="330" width="200" height="160" as="geometry"/>
                 </mxCell>
                 <mxCell id="_dHpeF81XEZjoDz7rJlP-27" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;bottom=0;right=0;collapsible=0;dropTarget=0;fillColor=none;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="_dHpeF81XEZjoDz7rJlP-26" vertex="1">
                     <mxGeometry y="30" width="200" height="43" as="geometry"/>
