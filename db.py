@@ -1,9 +1,12 @@
 import sqlite3 as sql
 import logging
 from os.path import isfile, getsize
+import time
 
 database_file = "kash.db"
-	
+conn = None
+cur = None #global cursor, can be used in case of select statements
+
 def execute(conn, sql_command, params = None):
 	""" execute a given sql statement
 	conn -> Connection object
@@ -12,11 +15,13 @@ def execute(conn, sql_command, params = None):
 	"""
 	logging.debug ("sql_command = ["+sql_command+"]")
 	try:
-		c = conn.cursor()
+		global cur
+		cur = conn.cursor()
 		if params is None:
-			c.execute(sql_command)
+			cur.execute(sql_command)
 		else:
-			c.execute(sql_command, params)
+			cur.execute(sql_command, params)
+		conn.commit()
 		return (True)
 	except sql.Error as e:
 		logging.error (e)
@@ -24,6 +29,7 @@ def execute(conn, sql_command, params = None):
 	except:
 		logging.error ("Unexpected Error!")
 		return (False)
+
 
 def init():
 	should_init = False
@@ -34,6 +40,7 @@ def init():
 		should_init = True
 	
 	try:
+		global conn
 		conn = sql.connect(database_file)
 		logging.debug ("Succesfully connected to database ["+database_file+"]")
 	except sql.Error as e:
@@ -67,3 +74,50 @@ def init():
 		if (not execute(conn, sql_create_account_table)):
 			logging.error ("Failed to create table account. Exiting...")
 			exit(0)
+
+def get_account_types():
+	sql_get_account_types = """
+							SELECT * FROM account_type 
+							"""
+	if (not execute(conn, sql_get_account_types)):
+		logging.error ("Failed to get data from account_type table")
+	
+	rows = cur.fetchall()
+	return(rows)
+
+def create_new_account_type(type_name, type_logo_id):
+	sql_insert_new_account_type = """
+									INSERT INTO account_type(name, logo_id)
+									VALUES
+									(?,?);
+								"""
+	insert_values = (type_name, type_logo_id)
+	if (not execute (conn, sql_insert_new_account_type, insert_values)):
+		logging.error("Failed to insert values [%s] and [%s] into account_types table", type_name, type_logo_id)
+		return (False, None)
+	
+	sql_get_lastest_account_type_id = """
+									SELECT MAX(id) FROM account_type
+									"""
+	if (not execute (conn, sql_get_lastest_account_type_id)):
+		logging.error("could not get id for latest account id")
+		return (False, None)
+
+	return (True, cur.fetchall())
+
+def create_new_account(name, type_id, balance, created = None):
+	if (created is None):
+		created = int(time.time())
+
+	sql_create_new_account = """
+							INSERT INTO account (name, type_id, balance, created)
+								VALUES
+								(?,?,?,?) 
+							"""
+	insert_values = (name, type_id, balance, created)
+	if (not execute (conn, sql_create_new_account, insert_values)):
+		logging.error("Failed to create new accont")
+		return False
+	
+	return True
+	
