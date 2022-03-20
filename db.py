@@ -1,11 +1,22 @@
+from calendar import month
 import sqlite3 as sql
 import logging
 from os.path import isfile, getsize
 import time
+import datetime
 
 database_file = "kash.db"
 conn = None
 cur = None #global cursor, can be used in case of select statements
+
+s_transcations_by_ID = "ID" #for given id
+s_transcations_by_MONTH = "MONTH" #for given month if unix timestamp is provided, otherwise the current month
+s_transcations_by_CATEGORYNAME = "CATEGORYNAME" #for given category name
+s_transcations_by_CATEGORYID = "CATEGORY" #for given category id
+s_transcations_sort_LATEST = "SORT BY LATEST" #sort by date of tran desc
+s_transcations_sort_VALUE = "SORT BY VALUE" #sort by amount desc
+
+
 
 transcation_type = {'CREDIT':1, 'DEBIT':2, 'TRANSFER':3}
 
@@ -188,15 +199,80 @@ def get_all_category():
 	rows = cur.fetchall()
 	return(rows)
 
+def month_start_end(unixtime):
+	#for the given timestamp, get the month
+	#then return the timestamp of the month start and end
+	dt = datetime.datetime.fromtimestamp(unixtime)
+	f_month = dt.month
+	f_year = dt.year
+	first_second_f_month = datetime.datetime(f_year, f_month, 1)
+	first_second_f_plus_1_month = datetime.datetime(f_year, f_month+1, 1)
+	last_second_f_month = first_second_f_plus_1_month - datetime.timedelta(seconds=1)
+	
+	month_start = int(time.mktime(first_second_f_month.timetuple()))
+	month_end = int(time.mktime(last_second_f_month.timetuple()))
+	
+	return (month_start, month_end)
+
 def get_transcations(options = None, param = None):
 	sql_get_transcations = """
-							SELECT * FROM transactions 
+							SELECT * FROM transactions t 
+								INNER JOIN  category c ON t.category_id = c.id
 							"""
 	#set WHERE
+	sql_get_transcations_where = ""
+	sql_get_transcations_order_by = ""
 	if (options is not None):
-		if (options == "ID"):
-			sql_get_transcations += " WHERE id = "+str(param)
+		i = 0
+		for op in options:
+			if (op == s_transcations_by_ID):
+				if (len(sql_get_transcations_where) > 0):
+					sql_get_transcations_where += " AND "
+				sql_get_transcations_where += " t.id = "+str(param[i])
+				continue
+			
+			if (op == s_transcations_by_MONTH):
+				if (len(sql_get_transcations_where) > 0):
+					sql_get_transcations_where += " AND "
+				if (param[i] is None):
+					unixtime = int(time.time())
+				else:
+					unixtime = int(param[i])
+				month_interval = month_start_end(unixtime)
+				sql_get_transcations_where += " t.created BETWEEN " + str(month_interval[0]) + " AND " + str(month_interval[1])
+				continue
 
+			if (op == s_transcations_by_CATEGORYNAME):
+				if (len(sql_get_transcations_where) > 0):
+					sql_get_transcations_where += " AND "
+				sql_get_transcations_where += " c.name = " + str(param[i])
+				continue		
+			
+			if (op == s_transcations_by_CATEGORYID):
+				if (len(sql_get_transcations_where) > 0):
+					sql_get_transcations_where += " AND "
+				sql_get_transcations_where += " c.id = " + str(param[i])
+				continue
+
+			if (op == s_transcations_sort_LATEST):
+				if (len(sql_get_transcations_order_by) > 0):
+					sql_get_transcations_order_by += ", "
+				sql_get_transcations_order_by += " t.created DESC "
+				continue
+			
+			if (op == s_transcations_sort_VALUE):
+				if (len(sql_get_transcations_order_by) > 0):
+					sql_get_transcations_order_by += ", "
+				sql_get_transcations_order_by += " t.amount DESC "
+				continue
+			
+			i+=1
+
+	if (len(sql_get_transcations_where) > 0):
+		sql_get_transcations += " WHERE "+ sql_get_transcations_where
+	if (len(sql_get_transcations_order_by) > 0):
+		sql_get_transcations += " ORDER BY "+ sql_get_transcations_order_by
+		
 	if (not execute(conn, sql_get_transcations)):
 		logging.error ("Failed to get data from transctaion table")
 		return None
@@ -206,7 +282,7 @@ def get_transcations(options = None, param = None):
 
 def del_transcation(del_tran_id):
 	#get transcation details
-	detail = get_transcations("ID", del_tran_id)[0]
+	detail = get_transcations([s_transcations_by_ID], [del_tran_id]) [0]
 	print ("will delete...")
 	print (detail)
 	del_t_type = int(detail[2])
