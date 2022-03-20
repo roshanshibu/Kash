@@ -95,6 +95,32 @@ def get_all_accounts():
 	rows = cur.fetchall()
 	return(rows)
 
+def get_account_balance(account_id = None):
+	sql_get_account_balance = """
+								SELECT SUM(balance) FROM account
+								"""
+	if account_id is not None:
+		sql_get_account_balance += " WHERE id="+str(account_id)
+	
+	if (not execute(conn, sql_get_account_balance)):
+		logging.error ("Failed to get acount balance")
+		return None
+	
+	rows = cur.fetchall()
+	return(rows[0][0])
+
+def update_account_balance(account_id, new_balance):
+	cur_balance = get_account_balance(account_id)
+	diff = new_balance - cur_balance
+	if diff > 0:
+		t_type = transcation_type['CREDIT']
+	else:
+		t_type = transcation_type['DEBIT']
+	if (not create_transcation("Balance adjustment", t_type, 2, account_id, abs(diff), '')):
+		logging.error("Failed to update balance")
+		return False
+	return True
+
 
 def create_transcation(t_name, t_type, category_id, account_id, amount, sys_note, created = None):
 	if (created is None):
@@ -154,6 +180,21 @@ def get_all_category():
 							"""
 	if (not execute(conn, sql_get_all_category)):
 		logging.error ("Failed to get data from category table")
+		return None
+	
+	rows = cur.fetchall()
+	return(rows)
+
+def get_all_transcations(options = None):
+	sql_get_all_transcations = """
+							SELECT * FROM transactions 
+							"""
+	#set WHERE
+	if (options is not None):
+		print ("create where clause string")
+
+	if (not execute(conn, sql_get_all_transcations)):
+		logging.error ("Failed to get data from transctaion table")
 		return None
 	
 	rows = cur.fetchall()
@@ -233,6 +274,8 @@ def init():
 			exit(0)
 
 		create_new_category("Transfer", "c_transfer", "#000000")
+		create_new_category("Balance Adjustment", "c_bal_adj", "#000000")
+		
 	
 	return should_init
 

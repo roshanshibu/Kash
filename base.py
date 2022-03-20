@@ -30,10 +30,9 @@ if should_init:
 	db.create_new_account("south indian", 2, 1000)
 	
 
-feature_list = ["create an account", "view accounts", "register transcation"]
+feature_list = ["create an account", "view accounts", "register transcation", "adjust balance", "view all transcations"]
 '''
 to-do features:
-- view all transcations
 - delete a transcation
 - view transcations in this month (with sorting options: by latest and by amount value)
 - view transcations in this month for a specific category (with same sorting)
@@ -125,3 +124,25 @@ while True:
 		print (t_name, t_type, category_id, account_id, amount, sys_note)
 		db.create_transcation(t_name, t_type, category_id, account_id, amount, sys_note)
 
+	if (option == "4"):
+		print ("\n")
+		print (feature_list[3])
+		#get the new balance and compute diff
+		all_accounts = db.get_all_accounts()
+		for account in all_accounts:
+			print (account)
+		account_id = input("Select account id to edit balance: ")
+		new_account_balance =  int(input("Enter new balance: "))
+		db.update_account_balance(account_id, new_account_balance)
+
+		print ("\n\n")
+
+
+	if (option == "5"):
+		print ("\n")
+		print (feature_list[4])
+		#print all transcation details
+		all_transcations = db.get_all_transcations()
+		for tran in all_transcations:
+			print (tran)
+		print ("\n\n")
