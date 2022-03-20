@@ -122,19 +122,22 @@ def update_account_balance(account_id, new_balance):
 	return True
 
 
-def create_transcation(t_name, t_type, category_id, account_id, amount, sys_note, created = None):
-	if (created is None):
-		created = int(time.time())
-	
-	sql_insert_new_transcation = """
-									INSERT INTO transactions(name, type, category_id, account_id, amount, sys_note, created)
-									VALUES
-									(?,?,?,?,?,?,?);
-								"""
-	insert_values = (t_name, t_type, category_id, account_id, amount, sys_note, created)
-	if (not execute (conn, sql_insert_new_transcation, insert_values)):
-		logging.error("Failed to insert transcation")
-		return False
+def create_transcation(t_name, t_type, category_id, account_id, amount, sys_note, created = None, ghost = None):
+	if ghost is None:
+		if (created is None):
+			created = int(time.time())
+		
+		sql_insert_new_transcation = """
+										INSERT INTO transactions(name, type, category_id, account_id, amount, sys_note, created)
+										VALUES
+										(?,?,?,?,?,?,?);
+									"""
+		insert_values = (t_name, t_type, category_id, account_id, amount, sys_note, created)
+		if (not execute (conn, sql_insert_new_transcation, insert_values)):
+			logging.error("Failed to insert transcation")
+			return False
+	else:
+		logging.info("Ghost transcation with params [%s, %s, %s, %s, %s, %s, %s, %s]", str(t_name), str(t_type), str(category_id), str(account_id), str(amount), str(sys_note), str(created), str(ghost))
 	
 	i_amount = int(amount)
 	if (int(t_type) != transcation_type['TRANSFER']):
@@ -185,20 +188,58 @@ def get_all_category():
 	rows = cur.fetchall()
 	return(rows)
 
-def get_all_transcations(options = None):
-	sql_get_all_transcations = """
+def get_transcations(options = None, param = None):
+	sql_get_transcations = """
 							SELECT * FROM transactions 
 							"""
 	#set WHERE
 	if (options is not None):
-		print ("create where clause string")
+		if (options == "ID"):
+			sql_get_transcations += " WHERE id = "+str(param)
 
-	if (not execute(conn, sql_get_all_transcations)):
+	if (not execute(conn, sql_get_transcations)):
 		logging.error ("Failed to get data from transctaion table")
 		return None
 	
 	rows = cur.fetchall()
 	return(rows)
+
+def del_transcation(del_tran_id):
+	#get transcation details
+	detail = get_transcations("ID", del_tran_id)[0]
+	print ("will delete...")
+	print (detail)
+	del_t_type = int(detail[2])
+	del_t_account = detail[4]
+	del_t_amount = detail[5]
+
+	if del_t_type != transcation_type['TRANSFER']:
+		#revert the transcation amount
+		#do a ghost transcation, so we do nor create entries in the transcation table, but the amount table gets updated 
+		if (del_t_type == transcation_type['CREDIT']):
+			del_t_amount *= -1
+		
+		if ( not create_transcation(None, transcation_type['CREDIT'], None, del_t_account, del_t_amount, None, None, True)):
+			logging.error("Failed to do a ghost transcation to revert del_tran ["+del_tran_id+"]")
+			return False
+	else:
+		#do ghost transcation for both accounts
+		del_t_from = int(del_t_account)
+		del_t_to = int(detail[6])
+		if ( not create_transcation(None, transcation_type['CREDIT'], None, del_t_from, del_t_amount, None, None, True)):
+			logging.error("Failed to do a ghost transcation to revert transfer op ["+del_tran_id+"] : credit to original sender failed")
+			return False
+		if ( not create_transcation(None, transcation_type['DEBIT'], None, del_t_to, del_t_amount, None, None, True)):
+			logging.error("Failed to do a ghost transcation to revert transfer op ["+del_tran_id+"] : debit from original receiver failed")
+			return False
+		
+	
+	sql_delete_transcation_entry = "DELETE FROM transactions where id =" + del_tran_id
+	if (not execute (conn, sql_delete_transcation_entry)):
+		logging.error("Failed to delete transcation id ["+del_tran_id+"] row from transcations table")
+		return False
+
+	return True
 
 def init():
 	should_init = False

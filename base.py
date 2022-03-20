@@ -30,7 +30,8 @@ if should_init:
 	db.create_new_account("south indian", 2, 1000)
 	
 
-feature_list = ["create an account", "view accounts", "register transcation", "adjust balance", "view all transcations"]
+feature_list = ["create an account", "view accounts", "register transcation", "adjust balance", "delete a transcation", "view all transcations"]
+
 '''
 to-do features:
 - delete a transcation
@@ -141,8 +142,25 @@ while True:
 	if (option == "5"):
 		print ("\n")
 		print (feature_list[4])
+		#get id of transction to be deleted
+		all_transcations = db.get_transcations()
+		for tran in all_transcations:
+			print (tran)
+		tran_id = input("Select id of transcation to be deleted: ")
+		if (db.del_transcation(tran_id)):
+			print ("deleted transcation succesfully")
+		else:
+			print ("failed to delete transcation")
+		print ("\n\n")
+
+
+	
+	if (option == "6"):
+		print ("\n")
+		print (feature_list[5])
 		#print all transcation details
-		all_transcations = db.get_all_transcations()
+		all_transcations = db.get_transcations()
 		for tran in all_transcations:
 			print (tran)
 		print ("\n\n")
+	
